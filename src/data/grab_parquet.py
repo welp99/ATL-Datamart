@@ -9,10 +9,10 @@ import os
 
 page_url = "https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page"
 base_url = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{}.parquet"
-grab_data(page_url, base_url, 23, 24, 1, 8, "../data/raw/")
+
 
 def main():
-    grab_data()
+    grab_data(page_url, base_url, 23, 24, 1, 8, "../data/raw/")
     
 
 def grab_data(page_url, base_url, start_year, end_year, start_month, end_month, destination_folder):
