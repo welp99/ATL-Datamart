@@ -6,8 +6,8 @@ services:
     image: "minio/minio"
     container_name: minio
     ports:
-      - "9002:9001"
-      - "9100:9000"
+      - "9300:9001"
+      - "9400:9000"
     command: [ "server", "/data", "--console-address", ":9001" ]
     volumes:
       - ./minio:/data
