@@ -1,4 +1,4 @@
-#!/Users/welp/Documents/Cours Ingénieur/Archi Décisionelle/TP archi/ATL-Datamart/atlenv/bin/python3.12
+#!/Users/welp/Documents/Cours Ingénieur/Archi Décisionelle/TP archi/ATL-Datamart/atlenv/bin/python3.11
 
 # Author:
 # Contact: grubert@users.sf.net

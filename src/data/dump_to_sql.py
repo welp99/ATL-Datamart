@@ -5,6 +5,23 @@ import sys
 import pandas as pd
 from sqlalchemy import create_engine
 
+from minio import Minio
+from io import BytesIO
+
+def get_minio_client():
+    return Minio(
+        "localhost:9400",
+        access_key="minio",
+        secret_key="minio123",
+        secure=False
+    )
+
+def download_files_from_minio(bucket_name, minio_client):
+    objects = minio_client.list_objects(bucket_name)
+    for obj in objects:
+        if obj.object_name.endswith('.parquet'):
+            data = minio_client.get_object(bucket_name, obj.object_name)
+            yield obj.object_name, BytesIO(data.read())
 
 def write_data_postgres(dataframe: pd.DataFrame) -> bool:
     """
@@ -60,12 +77,11 @@ def clean_column_name(dataframe: pd.DataFrame) -> pd.DataFrame:
 
 
 def main() -> None:
-    folder_path: str = "../../data/raw/"
-    parquet_files = [f for f in os.listdir(folder_path) if
-                     f.lower().endswith('.parquet') and os.path.isfile(os.path.join(folder_path, f))]
+    bucket_name = "datalake"  
+    minio_client = get_minio_client()
 
-    for parquet_file in parquet_files:
-        parquet_df: pd.DataFrame = pd.read_parquet(folder_path + parquet_file, engine='pyarrow')
+    for file_name, file_data in download_files_from_minio(bucket_name, minio_client):
+        parquet_df = pd.read_parquet(file_data, engine='pyarrow')
         clean_column_name(parquet_df)
         if not write_data_postgres(parquet_df):
             del parquet_df

@@ -1,4 +1,4 @@
-#!/Users/welp/Documents/Cours Ingénieur/Archi Décisionelle/TP archi/ATL-Datamart/atlenv/bin/python3.12
+#!/Users/welp/Documents/Cours Ingénieur/Archi Décisionelle/TP archi/ATL-Datamart/atlenv/bin/python3.11
 
 # $Id: rst2xetex.py 9115 2022-07-28 17:06:24Z milde $
 # Author: Guenter Milde

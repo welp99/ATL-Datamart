@@ -1,4 +1,5 @@
 from minio import Minio
+from minio.error import S3Error
 import urllib.request
 import pandas as pd
 import sys
@@ -9,10 +10,18 @@ import os
 
 page_url = "https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page"
 base_url = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{}.parquet"
-
-
+client = Minio(
+        "localhost:9400",
+        access_key="minio",
+        secret_key="minio123",
+        secure=False
+    )
+directory_path: str = "../../data/raw/"
+bucket_name: str = "datalake"
 def main():
-    grab_data(page_url, base_url, 23, 24, 1, 8, "../data/raw/")
+    grab_data(page_url, base_url, 23, 24, 1, 8, directory_path)
+    create_minio_bucket(bucket_name, client)
+    upload_file_to_minio(directory_path, bucket_name, client)
     
 
 def grab_data(page_url, base_url, start_year, end_year, start_month, end_month, destination_folder):
@@ -64,23 +73,34 @@ def grab_data(page_url, base_url, start_year, end_year, start_month, end_month, 
     print("All files have been downloaded.")
 
 
-def write_data_minio():
+def create_minio_bucket(bucket_name, minio_client):
     """
-    This method put all Parquet files into Minio
-    Ne pas faire cette méthode pour le moment
+    Create a new bucket in MinIO.
+
+    :param bucket_name: The name of the bucket to create.
+    :param minio_client: An instance of Minio client.
     """
-    client = Minio(
-        "localhost:9000",
-        secure=False,
-        access_key="minio",
-        secret_key="minio123"
-    )
-    bucket: str = "Datalake_01"
-    found = client.bucket_exists(bucket)
-    if not found:
-        client.make_bucket(bucket)
-    else:
-        print("Bucket " + bucket + " existe déjà")
+    try:
+        found = minio_client.bucket_exists(bucket_name)
+        if not found:
+            minio_client.make_bucket(bucket_name)
+            print(f"Bucket '{bucket_name}' created successfully.")
+        else:
+            print(f"Bucket '{bucket_name}' already exists.")
+    except S3Error as err:
+        print(f"Error occurred: {err}")
+
+def upload_file_to_minio(directory_path, bucket_name, minio_client):
+    # Upload each file in the directory
+        for filename in os.listdir(directory_path):
+            file_path = os.path.join(directory_path, filename)
+
+            if os.path.isfile(file_path):
+                file_size = os.path.getsize(file_path)
+                with open(file_path, 'rb') as file_data:
+                    minio_client.put_object(bucket_name, filename, file_data, length=file_size)
+
+                print(f"File '{filename}' uploaded to bucket '{bucket_name}'.")
 
 if __name__ == '__main__':
     sys.exit(main())

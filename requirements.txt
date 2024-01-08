@@ -13,3 +13,6 @@ python-dotenv>=0.5.1
 pandas~=2.1.1
 sqlalchemy~=2.0.21
 setuptools~=68.0.0
+bs4
+pyarrow
+psycopg2
